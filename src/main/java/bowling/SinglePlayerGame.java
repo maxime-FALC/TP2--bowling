@@ -60,7 +60,11 @@ public class SinglePlayerGame {
             points_tir_un = 0;
             
             /* le tour est le tour N°1 */
-            tour = 1;
+            tour = 0;
+            
+            /* aucun strike et aucun spare n'ont étés effectués */
+            nb_boules_Strike =0 ;
+            scoreStrike =0;
             
 	}
 
@@ -77,19 +81,13 @@ public class SinglePlayerGame {
             /* Appel de la fonction de vérification d'un tir spécial en cours */
             spareOuStrikeEnCours(nombreDeQuillesAbattues);
             
-            /* traitement si un strike ou un spare est en cours */
-            if(spareValide){
-                /* Appel à la fonction de traitement des Spare */
-                spare(nombreDeQuillesAbattues);
-                
-            } else if(nb_boules_Strike != 0){
-                /* Appel à la fonction de traitement des Strike */
-                strike(nombreDeQuillesAbattues);
-            }
             
             
-            /* traitement de points de ce tir */
-            if(!lance_deux){
+            /* 
+             * traitement de points de ce tir si on est sur les 10 premiers 
+             * tours 
+             */
+            if(!lance_deux && tour <= 10){
                 
                 /* sur le premier lancé, il y a deux possibilités :
                  *  - tir classique
@@ -98,14 +96,16 @@ public class SinglePlayerGame {
                 if(nombreDeQuillesAbattues != 10){
                     
                     points_tir_un += nombreDeQuillesAbattues;
+                    lance_deux = true;
                     
                 } else {
                     
                     /* strike effectué */
                     nb_boules_Strike += 2;
+                    finTour();
                     
                 }
-            } else {
+            } else if(lance_deux && tour <= 10){
                 
                 /* sur le deuxième lancé, il y a deux possibilités :
                  *  - tir classique (la somme des deux boules ne vaut pas 10)
@@ -114,7 +114,6 @@ public class SinglePlayerGame {
                 points_tir_un += nombreDeQuillesAbattues;
                 
                 if(points_tir_un == 10){
-                    
                     /* spare effectué */
                     spareValide = true;
                     finTour();
@@ -133,9 +132,20 @@ public class SinglePlayerGame {
         /**
          * Vérifie si un Spare ou un Strike est en cours, et traite le cas 
          * si nécessaire
-         * @param nombreDeQuillesAbattues !!!!!!                                     
+         * @param nombreDeQuillesAbattues nombre de quilles renversées sur ce 
+         *                                tir                                
          */
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        public void spareOuStrikeEnCours(int nombreDeQuillesAbattues){
+            /* traitement si un strike ou un spare est en cours */
+            if(spareValide){
+                /* Appel à la fonction de traitement des Spare */
+                spare(nombreDeQuillesAbattues);
+                
+            } else if(nb_boules_Strike != 0){
+                /* Appel à la fonction de traitement des Strike */
+                strike(nombreDeQuillesAbattues);
+            }
+        }
         
 
 	/**
@@ -182,13 +192,19 @@ public class SinglePlayerGame {
          *        sur le nouveau lancé
          */
         public void strike(int nbQuilles){
-            if(nb_boules_Strike == 1 ){
-                score = score + scoreStrike + nbQuilles;
-            
-            } else {
+        switch (nb_boules_Strike) {
+            case 1:
+                score = score + scoreStrike + nbQuilles + 10;
+                scoreStrike = 0;
+                break;
+            case 2:
                 scoreStrike += nbQuilles;
-   
-            }
+                break;
+            default:
+                score = score + scoreStrike + nbQuilles + 10;
+                scoreStrike = nbQuilles;
+                break;
+        }
             nb_boules_Strike-- ; 
         }
 }
